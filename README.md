@@ -46,6 +46,12 @@ Routes live under `src/routes`; TanStack Router regenerates
 `src/routeTree.gen.ts` automatically. Pulumi project discovery and schema
 fetching live in `src/lib/pulumi`.
 
+Run the tests with:
+
+```bash
+npm test
+```
+
 Build the production app with:
 
 ```bash

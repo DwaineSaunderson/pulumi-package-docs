@@ -22,6 +22,8 @@
     "preview": "vite preview",
     "start": "node bin/cli.js",
     "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "oxlint",
     "format": "oxfmt . && oxlint --fix",
     "check": "oxfmt --check ."
@@ -42,7 +44,8 @@
     "oxfmt": "^0.68.0",
     "oxlint": "^1.83.0",
     "typescript": "^6.0.2",
-    "vite": "^8.0.0"
+    "vite": "^8.0.0",
+    "vitest": "^5.0.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

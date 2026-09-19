@@ -18,9 +18,11 @@ npm run generate-routes # regenerate src/routeTree.gen.ts after adding/renaming 
 npm run lint          # oxlint
 npm run format          # oxfmt (write) then oxlint --fix
 npm run check          # oxfmt --check (CI-style format check)
+npm test              # vitest run (single run)
+npm run test:watch      # vitest (watch mode)
 ```
 
-There is no test suite yet.
+Run a single test file with `npx vitest run src/lib/pulumi/format.test.ts`, or filter by test name with `npx vitest run -t "<name>"`.
 
 By default the dev/preview server inspects the Pulumi project in this repo's own directory (there isn't one, so you'll see the "no Pulumi project found" empty state). Point it at a real Pulumi project with:
 
@@ -57,3 +59,5 @@ Each entry becomes a `LocalPackageRef` (`name`, `source`, `version`, optional `p
 **`bin/cli.js`** is the `npx` entry point. It resolves the target Pulumi project directory (`--dir`, default `process.cwd()`) and passes it to the server via the `PULUMI_LOCAL_DOCS_DIR` env var (read by `getTargetDir()` in `discovery.server.ts`). It runs `vite preview` if a production build exists (`dist/server/server.js`), otherwise falls back to `vite dev`. Note the TanStack Start build output (`dist/server/server.js`) exports a fetch-style `{ fetch }` handler, not a standalone Node HTTP server — that's why it's served via `vite preview` rather than `node dist/server/server.js` directly.
 
 **Linting/formatting is oxlint + oxfmt, not eslint/prettier.** Config lives in `.oxlintrc.json` and `.oxfmtrc.json`. oxfmt formats JS/TS/JSX/TSX/JSON/CSS/Markdown, so it's the sole formatter (no prettier). `src/routeTree.gen.ts` is excluded from oxlint via `ignorePatterns`.
+
+**Tests are Vitest, run against plain Node — not through TanStack Start.** `vitest.config.ts` is deliberately separate from `vite.config.ts` so the `tanstackStart()` plugin (which does its own client/SSR multi-environment build) isn't in the test run. Tests live next to the code they cover as `*.test.ts` (e.g. `src/lib/pulumi/format.test.ts`, `src/lib/pulumi/discovery.server.test.ts`) and only target the pure/Node-side logic in `src/lib/pulumi`, not the routes or React components.
