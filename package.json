@@ -3,8 +3,17 @@
   "version": "0.1.0",
   "description": "Local documentation viewer for the parameterized/local Pulumi providers used by a Pulumi project.",
   "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Piers Karsenbarg",
+    "email": "piers@pulumi.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pierskarsenbarg/pulumi-package-docs.git"
+  },
   "bin": {
-    "pulumi-package-docs": "./bin/cli.js"
+    "pulumi-package-docs": "bin/cli.js"
   },
   "files": [
     "bin",
