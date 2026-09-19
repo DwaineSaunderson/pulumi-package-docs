@@ -101,10 +101,13 @@ function memberDetail(
 
 /**
  * Builds a fresh MCP server with the local-provider-docs tools registered. Called once
- * per HTTP request (see `src/routes/api.mcp.ts`) so concurrent requests never share state.
+ * per HTTP request (see `src/routes/mcp.ts`) so concurrent requests never share state.
  */
 export function createMcpServer(): McpServer {
-  const server = new McpServer({ name: 'pulumi-local-docs', version: '0.1.0' })
+  const server = new McpServer({
+    name: 'pulumi-package-docs',
+    version: '0.1.0',
+  })
 
   server.registerTool(
     'list_providers',

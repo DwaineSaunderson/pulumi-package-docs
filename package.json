@@ -1,10 +1,10 @@
 {
-  "name": "pulumi-local-docs",
+  "name": "pulumi-package-docs",
   "version": "0.1.0",
   "description": "Local documentation viewer for the parameterized/local Pulumi providers used by a Pulumi project.",
   "type": "module",
   "bin": {
-    "pulumi-local-docs": "./bin/cli.js"
+    "pulumi-package-docs": "./bin/cli.js"
   },
   "files": [
     "bin",

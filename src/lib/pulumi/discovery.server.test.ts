@@ -9,7 +9,7 @@ import { getTargetDir, loadPulumiProject } from '@/lib/pulumi/discovery.server'
 let projectDir: string
 
 beforeEach(() => {
-  projectDir = mkdtempSync(join(tmpdir(), 'pulumi-local-docs-test-'))
+  projectDir = mkdtempSync(join(tmpdir(), 'pulumi-package-docs-test-'))
 })
 
 afterEach(() => {

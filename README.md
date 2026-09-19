@@ -1,17 +1,17 @@
-# pulumi-local-docs
+# pulumi-package-docs
 
 A local documentation viewer for the parameterized/local Pulumi providers used by a Pulumi project (e.g. providers added with `pulumi package add`). Run it from inside a Pulumi project and it lists the packages declared in `Pulumi.yaml`'s `packages` section, fetches each one's schema via the `pulumi` CLI, and renders its resources and functions.
 
 ## Usage
 
 ```bash
-npx pulumi-local-docs
+npx pulumi-package-docs
 ```
 
 This serves docs for the Pulumi project in your current directory. Options:
 
 ```bash
-pulumi-local-docs [options]
+pulumi-package-docs [options]
 
   -d, --dir <path>   Pulumi project directory to inspect (default: current directory)
   -p, --port <port>  Port to serve on (default: 3000)
@@ -23,7 +23,7 @@ Requires the `pulumi` CLI to be installed and on `PATH`; it's used to fetch each
 
 ## MCP
 
-The server also exposes an [MCP](https://modelcontextprotocol.io) endpoint at `/mcp` (Streamable HTTP), so a coding agent can look up the same local provider docs without browsing the site. Point an MCP client at `http://localhost:3000/mcp` (e.g. in Claude Code, `claude mcp add --transport http pulumi-local-docs http://localhost:3000/mcp`). Tools:
+The server also exposes an [MCP](https://modelcontextprotocol.io) endpoint at `/mcp` (Streamable HTTP), so a coding agent can look up the same local provider docs without browsing the site. Point an MCP client at `http://localhost:3000/mcp` (e.g. in Claude Code, `claude mcp add --transport http pulumi-package-docs http://localhost:3000/mcp`). Tools:
 
 - `list_providers` — the local providers declared in `Pulumi.yaml`, with resource/function counts and schema load status.
 - `list_resources` / `list_functions` — a provider's resource or function tokens, with a one-line summary and deprecation status for each.

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`pulumi-local-docs` is a local documentation viewer for the parameterized/local Pulumi providers used by a Pulumi project (providers added with `pulumi package add`). Run from inside a Pulumi project, it reads that project's `Pulumi.yaml`, fetches each declared package's schema via the `pulumi` CLI, and serves a browsable docs site (resources + functions) for them. It's a TanStack Start (React) app, distributed as an `npx` CLI (`npx pulumi-local-docs`).
+`pulumi-package-docs` is a local documentation viewer for the parameterized/local Pulumi providers used by a Pulumi project (providers added with `pulumi package add`). Run from inside a Pulumi project, it reads that project's `Pulumi.yaml`, fetches each declared package's schema via the `pulumi` CLI, and serves a browsable docs site (resources + functions) for them. It's a TanStack Start (React) app, distributed as an `npx` CLI (`npx pulumi-package-docs`).
 
 ## Commands
 
