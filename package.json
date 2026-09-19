@@ -22,9 +22,9 @@
     "preview": "vite preview",
     "start": "node bin/cli.js",
     "prepublishOnly": "npm run build",
-    "lint": "eslint",
-    "format": "prettier --write . && eslint --fix",
-    "check": "prettier --check ."
+    "lint": "oxlint",
+    "format": "oxfmt . && oxlint --fix",
+    "check": "oxfmt --check ."
   },
   "dependencies": {
     "@tanstack/react-router": "latest",
@@ -34,14 +34,13 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "@tanstack/eslint-config": "latest",
     "@tanstack/router-cli": "^1.132.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^9.20.0",
-    "prettier": "^3.8.1",
+    "oxfmt": "^0.68.0",
+    "oxlint": "^1.83.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.0"
   },
