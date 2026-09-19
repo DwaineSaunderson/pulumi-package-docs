@@ -57,9 +57,14 @@ export const listProviders = createServerFn({ method: 'GET' }).handler(
   },
 )
 
+export interface ProviderDetail extends ProviderEntry {
+  /** The Pulumi project's runtime (e.g. "nodejs", "python", "go"), used to render Inputs/Outputs names in that language's casing. */
+  runtime?: string
+}
+
 export const getProvider = createServerFn({ method: 'GET' })
   .validator((name: string) => name)
-  .handler(async ({ data: name }): Promise<ProviderEntry | null> => {
+  .handler(async ({ data: name }): Promise<ProviderDetail | null> => {
     const targetDir = getTargetDir()
     const project = loadPulumiProject(targetDir)
     if (!project) return null
@@ -67,5 +72,6 @@ export const getProvider = createServerFn({ method: 'GET' })
     const ref = project.packages.find((p) => p.name === name)
     if (!ref) return null
 
-    return resolveProviderSchema(project.root, ref)
+    const entry = await resolveProviderSchema(project.root, ref)
+    return { ...entry, runtime: project.runtime }
   })

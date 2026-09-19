@@ -2,6 +2,7 @@ import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
 import { getProvider } from '@/lib/pulumi/api'
 import { formatType } from '@/lib/pulumi/format'
+import { formatPropertyName } from '@/lib/pulumi/naming'
 import type {
   SchemaFunction,
   SchemaProperty,
@@ -28,9 +29,11 @@ export const Route = createFileRoute('/providers/$name')({
 function PropertyTable({
   properties,
   required,
+  runtime,
 }: {
   properties?: Record<string, SchemaProperty>
   required?: string[]
+  runtime?: string
 }) {
   const names = Object.keys(properties ?? {})
   if (names.length === 0) return <p className="empty-state">None</p>
@@ -53,7 +56,7 @@ function PropertyTable({
           return (
             <tr key={name}>
               <td>
-                <code>{name}</code>
+                <code>{formatPropertyName(name, runtime)}</code>
               </td>
               <td>
                 <code>{formatType(prop)}</code>
@@ -71,9 +74,11 @@ function PropertyTable({
 function ResourceSection({
   token,
   resource,
+  runtime,
 }: {
   token: string
   resource: SchemaResource
+  runtime?: string
 }) {
   return (
     <section className="doc-entry">
@@ -86,17 +91,27 @@ function ResourceSection({
       <PropertyTable
         properties={resource.inputProperties}
         required={resource.requiredInputs}
+        runtime={runtime}
       />
       <h4>Outputs</h4>
       <PropertyTable
         properties={resource.properties}
         required={resource.required}
+        runtime={runtime}
       />
     </section>
   )
 }
 
-function FunctionSection({ token, fn }: { token: string; fn: SchemaFunction }) {
+function FunctionSection({
+  token,
+  fn,
+  runtime,
+}: {
+  token: string
+  fn: SchemaFunction
+  runtime?: string
+}) {
   return (
     <section className="doc-entry">
       <h3>{token}</h3>
@@ -105,11 +120,13 @@ function FunctionSection({ token, fn }: { token: string; fn: SchemaFunction }) {
       <PropertyTable
         properties={fn.inputs?.properties}
         required={fn.inputs?.required}
+        runtime={runtime}
       />
       <h4>Outputs</h4>
       <PropertyTable
         properties={fn.outputs?.properties}
         required={fn.outputs?.required}
+        runtime={runtime}
       />
     </section>
   )
@@ -117,7 +134,7 @@ function FunctionSection({ token, fn }: { token: string; fn: SchemaFunction }) {
 
 function ProviderDetail() {
   const entry = Route.useLoaderData()
-  const { ref, schema, origin, error } = entry
+  const { ref, schema, origin, error, runtime } = entry
 
   return (
     <main className="provider-detail">
@@ -150,7 +167,12 @@ function ProviderDetail() {
             <p className="empty-state">No resources.</p>
           ) : (
             Object.entries(schema.resources!).map(([token, resource]) => (
-              <ResourceSection key={token} token={token} resource={resource} />
+              <ResourceSection
+                key={token}
+                token={token}
+                resource={resource}
+                runtime={runtime}
+              />
             ))
           )}
 
@@ -159,7 +181,12 @@ function ProviderDetail() {
             <p className="empty-state">No functions.</p>
           ) : (
             Object.entries(schema.functions!).map(([token, fn]) => (
-              <FunctionSection key={token} token={token} fn={fn} />
+              <FunctionSection
+                key={token}
+                token={token}
+                fn={fn}
+                runtime={runtime}
+              />
             ))
           )}
         </>
