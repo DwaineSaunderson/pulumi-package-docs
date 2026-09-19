@@ -21,7 +21,7 @@ function cacheFilePath(projectRoot: string, ref: LocalPackageRef): string {
     .update(projectRoot)
     .digest('hex')
     .slice(0, 16)
-  const dir = join(tmpdir(), 'local-provider-docs', projectHash)
+  const dir = join(tmpdir(), 'pulumi-local-docs', projectHash)
   mkdirSync(dir, { recursive: true })
   return join(dir, `${ref.name}.json`)
 }

@@ -9,11 +9,11 @@ const PROJECT_FILE_NAMES = ['Pulumi.yaml', 'Pulumi.yml']
 
 /**
  * The directory of the Pulumi program to inspect. `bin/cli.js` sets this to the
- * directory the user ran `npx local-provider-docs` from, since the dev/preview
+ * directory the user ran `npx pulumi-local-docs` from, since the dev/preview
  * server itself runs with this package's own directory as its cwd.
  */
 export function getTargetDir(): string {
-  return process.env.LOCAL_PROVIDER_DOCS_DIR || process.cwd()
+  return process.env.PULUMI_LOCAL_DOCS_DIR || process.cwd()
 }
 
 function findProjectFile(startDir: string): string | null {

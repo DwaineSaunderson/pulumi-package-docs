@@ -1,4 +1,4 @@
-# local-provider-docs
+# pulumi-local-docs
 
 A local documentation viewer for the parameterized/local Pulumi providers used
 by a Pulumi project (e.g. providers added with `pulumi package add`). Run it
@@ -9,13 +9,13 @@ CLI, and renders its resources and functions.
 ## Usage
 
 ```bash
-npx local-provider-docs
+npx pulumi-local-docs
 ```
 
 This serves docs for the Pulumi project in your current directory. Options:
 
 ```
-local-provider-docs [options]
+pulumi-local-docs [options]
 
   -d, --dir <path>   Pulumi project directory to inspect (default: current directory)
   -p, --port <port>  Port to serve on (default: 3000)
@@ -36,10 +36,10 @@ npm run dev
 
 This starts the TanStack Start dev server, and inspects the Pulumi project in
 this repo's own directory by default. Point it at another project's
-`Pulumi.yaml` with the `LOCAL_PROVIDER_DOCS_DIR` env var:
+`Pulumi.yaml` with the `PULUMI_LOCAL_DOCS_DIR` env var:
 
 ```bash
-LOCAL_PROVIDER_DOCS_DIR=/path/to/pulumi/project npm run dev
+PULUMI_LOCAL_DOCS_DIR=/path/to/pulumi/project npm run dev
 ```
 
 Routes live under `src/routes`; TanStack Router regenerates

@@ -26,7 +26,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`local-provider-docs [options]
+  console.log(`pulumi-local-docs [options]
 
 Serves local documentation for the parameterized/local Pulumi providers used
 by a Pulumi project.
@@ -69,11 +69,11 @@ console.log(`Serving provider docs for: ${options.dir}`)
 const child = spawn(process.execPath, [viteBin, ...viteArgs], {
   cwd: packageRoot,
   stdio: 'inherit',
-  env: { ...process.env, LOCAL_PROVIDER_DOCS_DIR: options.dir },
+  env: { ...process.env, PULUMI_LOCAL_DOCS_DIR: options.dir },
 })
 
 child.on('exit', (code) => process.exit(code ?? 0))
 child.on('error', (err) => {
-  console.error('Failed to start local-provider-docs:', err)
+  console.error('Failed to start pulumi-local-docs:', err)
   process.exit(1)
 })
