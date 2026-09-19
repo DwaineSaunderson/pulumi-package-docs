@@ -65,7 +65,6 @@ if (!hasProductionBuild) {
   )
 }
 console.log(`Serving provider docs for: ${options.dir}`)
-console.log(`MCP endpoint: http://localhost:${options.port}/mcp`)
 
 const child = spawn(process.execPath, [viteBin, ...viteArgs], {
   cwd: packageRoot,
