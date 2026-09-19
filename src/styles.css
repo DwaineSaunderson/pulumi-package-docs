@@ -283,19 +283,21 @@ main {
 }
 
 .theme-switch-option {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
   padding: 0;
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: none;
   color: var(--color-fg-subtle);
   cursor: pointer;
   transition:
     background-color 0.15s ease,
+    border-color 0.15s ease,
     color 0.15s ease;
 }
 
@@ -305,7 +307,32 @@ main {
 
 .theme-switch-option[aria-pressed='true'] {
   background: var(--color-accent-bg);
+  border-color: var(--color-accent-border);
   color: var(--color-primary);
+}
+
+.theme-switch-option::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-fg);
+  color: var(--color-bg);
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 20;
+}
+
+.theme-switch-option:hover::after,
+.theme-switch-option:focus-visible::after {
+  opacity: 1;
 }
 
 /* subtitles, badges, banners */

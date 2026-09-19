@@ -60,7 +60,6 @@ export function ThemeToggle() {
           aria-pressed={mode === optionMode}
           onClick={() => choose(optionMode)}
           aria-label={label}
-          title={label}
         >
           <Icon />
         </button>
