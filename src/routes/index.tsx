@@ -13,7 +13,7 @@ function Home() {
   if (!project) {
     return (
       <main>
-        <h1>Package Docs</h1>
+        <h1>Pulumi Package Docs</h1>
         <p className="empty-state">
           No Pulumi project was found at <code>{targetDir}</code> (or any parent
           directory). Run this from inside a Pulumi project directory, or with{' '}
@@ -25,7 +25,7 @@ function Home() {
 
   return (
     <main>
-      <h1>Package Docs</h1>
+      <h1>Pulumi Package Docs</h1>
       <p className="subtitle">
         {project.name ?? 'Pulumi project'} &middot; <code>{project.root}</code>
       </p>

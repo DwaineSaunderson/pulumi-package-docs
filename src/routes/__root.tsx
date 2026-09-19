@@ -55,7 +55,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <Link to="/" className="site-brand">
               <PulumiLogo height={22} />
               <span className="site-brand-divider" aria-hidden="true" />
-              <span className="site-brand-name">Local Provider Docs</span>
+              <span className="site-brand-name">Package Docs</span>
             </Link>
             <ThemeToggle />
           </div>
