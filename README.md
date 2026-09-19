@@ -16,6 +16,7 @@ pulumi-package-docs [options]
   -d, --dir <path>   Pulumi project directory to inspect (default: current directory)
   -p, --port <port>  Port to serve on (default: 3000)
   --host             Expose the server on your network
+  --open             Open the docs in your default browser once ready
   -h, --help         Show this help message
 ```
 
