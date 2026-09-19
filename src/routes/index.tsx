@@ -51,7 +51,7 @@ function Home() {
                 </span>
               </Link>
               {provider.origin === 'error' ? (
-                <p className="provider-error">
+                <p className="banner banner-failure">
                   Failed to load schema: {provider.error}
                 </p>
               ) : (
@@ -61,7 +61,12 @@ function Home() {
                   {' · '}
                   {provider.functionCount} function
                   {provider.functionCount === 1 ? '' : 's'}
-                  {provider.origin === 'cache' ? ' · from cache' : ''}
+                  {provider.origin === 'cache' && (
+                    <>
+                      {' · '}
+                      <span className="badge badge-info">from cache</span>
+                    </>
+                  )}
                 </p>
               )}
             </li>

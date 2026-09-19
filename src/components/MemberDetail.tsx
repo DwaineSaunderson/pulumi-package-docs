@@ -50,11 +50,18 @@ export function MemberDetail({
       </Link>
       <h1>{displayName}</h1>
       <p className="subtitle">
-        {kind} &middot; <code>{token}</code>
+        <span
+          className={`badge ${kind === 'Resource' ? 'badge-resource' : 'badge-function'}`}
+        >
+          {kind}
+        </span>{' '}
+        &middot; <code>{token}</code>
       </p>
 
       {deprecationMessage && (
-        <p className="deprecated">Deprecated: {deprecationMessage}</p>
+        <p className="banner banner-warning">
+          Deprecated: {deprecationMessage}
+        </p>
       )}
 
       {prose?.split(/\n{2,}/).map((paragraph, i) => (

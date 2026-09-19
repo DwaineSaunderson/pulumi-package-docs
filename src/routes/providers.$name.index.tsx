@@ -46,7 +46,7 @@ function MemberListItem({
       <Link to={to} params={{ name: providerName, token }}>
         <code>{tokenDisplayName(token)}</code>
       </Link>
-      {deprecated && <p className="deprecated">Deprecated</p>}
+      {deprecated && <span className="badge badge-warning">Deprecated</span>}
       {summary && <p className="doc-summary">{summary}</p>}
     </li>
   )
@@ -72,13 +72,13 @@ function ProviderDetail() {
       </p>
 
       {origin === 'error' || !schema ? (
-        <p className="provider-error">
+        <p className="banner banner-failure">
           Failed to load schema: {error ?? 'unknown error'}
         </p>
       ) : (
         <>
           {origin === 'cache' && (
-            <p className="provider-stats">
+            <p className="banner banner-info">
               Showing a cached schema (the <code>pulumi</code> CLI call failed
               on this load).
             </p>
