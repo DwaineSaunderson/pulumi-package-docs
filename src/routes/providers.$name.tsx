@@ -1,6 +1,7 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
 import { getProvider } from '@/lib/pulumi/api'
+import { resolveDescription } from '@/lib/pulumi/description'
 import { formatType } from '@/lib/pulumi/format'
 import { formatPropertyName } from '@/lib/pulumi/naming'
 import type {
@@ -62,7 +63,7 @@ function PropertyTable({
                 <code>{formatType(prop)}</code>
               </td>
               <td>{requiredSet.has(name) ? 'yes' : 'no'}</td>
-              <td>{prop.description ?? ''}</td>
+              <td>{resolveDescription(prop.description, runtime) ?? ''}</td>
             </tr>
           )
         })}
@@ -83,7 +84,9 @@ function ResourceSection({
   return (
     <section className="doc-entry">
       <h3>{token}</h3>
-      {resource.description && <p>{resource.description}</p>}
+      {resource.description && (
+        <p>{resolveDescription(resource.description, runtime)}</p>
+      )}
       {resource.deprecationMessage && (
         <p className="deprecated">Deprecated: {resource.deprecationMessage}</p>
       )}
@@ -115,7 +118,7 @@ function FunctionSection({
   return (
     <section className="doc-entry">
       <h3>{token}</h3>
-      {fn.description && <p>{fn.description}</p>}
+      {fn.description && <p>{resolveDescription(fn.description, runtime)}</p>}
       <h4>Inputs</h4>
       <PropertyTable
         properties={fn.inputs?.properties}
@@ -160,7 +163,9 @@ function ProviderDetail() {
               on this load).
             </p>
           )}
-          {schema.description && <p>{schema.description}</p>}
+          {schema.description && (
+            <p>{resolveDescription(schema.description, runtime)}</p>
+          )}
 
           <h2>Resources</h2>
           {Object.keys(schema.resources ?? {}).length === 0 ? (
