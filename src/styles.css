@@ -84,19 +84,65 @@ code {
   font-size: 0.9rem;
 }
 
-.doc-entry {
-  border-top: 1px solid #e0e0e0;
-  padding-top: 1rem;
-  margin-top: 1.5rem;
-}
-
-.doc-entry h3 {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 1rem;
-}
-
 .deprecated {
   color: #b00020;
+}
+
+.doc-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.doc-list-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.doc-list-item a {
+  text-decoration: none;
+}
+
+.doc-list-item a:hover {
+  text-decoration: underline;
+}
+
+.doc-summary {
+  color: #555;
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+}
+
+.code-example {
+  margin-bottom: 1.5rem;
+}
+
+.code-example-lang {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+.code-example pre {
+  background: #f7f7f7;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0;
+}
+
+.code-example code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85rem;
 }
 
 .props-table {

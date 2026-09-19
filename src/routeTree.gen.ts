@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProvidersNameRouteImport } from './routes/providers.$name'
+import { Route as ProvidersNameIndexRouteImport } from './routes/providers.$name.index'
+import { Route as ProvidersNameFunctionsTokenRouteImport } from './routes/providers.$name.functions.$token'
+import { Route as ProvidersNameResourcesTokenRouteImport } from './routes/providers.$name.resources.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +25,71 @@ const ProvidersNameRoute = ProvidersNameRouteImport.update({
   path: '/providers/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProvidersNameIndexRoute = ProvidersNameIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProvidersNameRoute,
+} as any)
+const ProvidersNameFunctionsTokenRoute =
+  ProvidersNameFunctionsTokenRouteImport.update({
+    id: '/functions/$token',
+    path: '/functions/$token',
+    getParentRoute: () => ProvidersNameRoute,
+  } as any)
+const ProvidersNameResourcesTokenRoute =
+  ProvidersNameResourcesTokenRouteImport.update({
+    id: '/resources/$token',
+    path: '/resources/$token',
+    getParentRoute: () => ProvidersNameRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/providers/$name': typeof ProvidersNameRoute
+  '/providers/$name': typeof ProvidersNameRouteWithChildren
+  '/providers/$name/': typeof ProvidersNameIndexRoute
+  '/providers/$name/functions/$token': typeof ProvidersNameFunctionsTokenRoute
+  '/providers/$name/resources/$token': typeof ProvidersNameResourcesTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/providers/$name': typeof ProvidersNameRoute
+  '/providers/$name': typeof ProvidersNameIndexRoute
+  '/providers/$name/functions/$token': typeof ProvidersNameFunctionsTokenRoute
+  '/providers/$name/resources/$token': typeof ProvidersNameResourcesTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/providers/$name': typeof ProvidersNameRoute
+  '/providers/$name': typeof ProvidersNameRouteWithChildren
+  '/providers/$name/': typeof ProvidersNameIndexRoute
+  '/providers/$name/functions/$token': typeof ProvidersNameFunctionsTokenRoute
+  '/providers/$name/resources/$token': typeof ProvidersNameResourcesTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/providers/$name'
+  fullPaths:
+    | '/'
+    | '/providers/$name'
+    | '/providers/$name/'
+    | '/providers/$name/functions/$token'
+    | '/providers/$name/resources/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/providers/$name'
-  id: '__root__' | '/' | '/providers/$name'
+  to:
+    | '/'
+    | '/providers/$name'
+    | '/providers/$name/functions/$token'
+    | '/providers/$name/resources/$token'
+  id:
+    | '__root__'
+    | '/'
+    | '/providers/$name'
+    | '/providers/$name/'
+    | '/providers/$name/functions/$token'
+    | '/providers/$name/resources/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ProvidersNameRoute: typeof ProvidersNameRoute
+  ProvidersNameRoute: typeof ProvidersNameRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +108,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProvidersNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/providers/$name/': {
+      id: '/providers/$name/'
+      path: '/'
+      fullPath: '/providers/$name/'
+      preLoaderRoute: typeof ProvidersNameIndexRouteImport
+      parentRoute: typeof ProvidersNameRoute
+    }
+    '/providers/$name/functions/$token': {
+      id: '/providers/$name/functions/$token'
+      path: '/functions/$token'
+      fullPath: '/providers/$name/functions/$token'
+      preLoaderRoute: typeof ProvidersNameFunctionsTokenRouteImport
+      parentRoute: typeof ProvidersNameRoute
+    }
+    '/providers/$name/resources/$token': {
+      id: '/providers/$name/resources/$token'
+      path: '/resources/$token'
+      fullPath: '/providers/$name/resources/$token'
+      preLoaderRoute: typeof ProvidersNameResourcesTokenRouteImport
+      parentRoute: typeof ProvidersNameRoute
+    }
   }
 }
 
+interface ProvidersNameRouteChildren {
+  ProvidersNameIndexRoute: typeof ProvidersNameIndexRoute
+  ProvidersNameFunctionsTokenRoute: typeof ProvidersNameFunctionsTokenRoute
+  ProvidersNameResourcesTokenRoute: typeof ProvidersNameResourcesTokenRoute
+}
+
+const ProvidersNameRouteChildren: ProvidersNameRouteChildren = {
+  ProvidersNameIndexRoute: ProvidersNameIndexRoute,
+  ProvidersNameFunctionsTokenRoute: ProvidersNameFunctionsTokenRoute,
+  ProvidersNameResourcesTokenRoute: ProvidersNameResourcesTokenRoute,
+}
+
+const ProvidersNameRouteWithChildren = ProvidersNameRoute._addFileChildren(
+  ProvidersNameRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ProvidersNameRoute: ProvidersNameRoute,
+  ProvidersNameRoute: ProvidersNameRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
