@@ -6,7 +6,13 @@ import {
 } from '@tanstack/react-router'
 
 import { PulumiLogo } from '@/components/PulumiLogo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import appCss from '../styles.css?url'
+
+// Runs before hydration so an explicit theme choice applies before first
+// paint (no flash of the wrong theme). Absent (system default) is a no-op —
+// styles.css's prefers-color-scheme rules already handle that case.
+const themeInitScript = `try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t}}catch(e){}`
 
 export const Route = createRootRoute({
   head: () => ({
@@ -38,17 +44,21 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <HeadContent />
       </head>
       <body>
         <header className="site-header">
-          <Link to="/" className="site-brand">
-            <PulumiLogo height={22} />
-            <span className="site-brand-divider" aria-hidden="true" />
-            <span className="site-brand-name">Local Provider Docs</span>
-          </Link>
+          <div className="site-header-inner">
+            <Link to="/" className="site-brand">
+              <PulumiLogo height={22} />
+              <span className="site-brand-divider" aria-hidden="true" />
+              <span className="site-brand-name">Local Provider Docs</span>
+            </Link>
+            <ThemeToggle />
+          </div>
         </header>
         {children}
 
