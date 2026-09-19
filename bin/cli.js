@@ -9,7 +9,7 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const require = createRequire(import.meta.url)
 
 function parseArgs(argv) {
-  const options = { dir: process.cwd(), port: '3000', host: false }
+  const options = { dir: process.cwd(), port: '3000', host: false, open: false }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (arg === '--dir' || arg === '-d') {
@@ -18,6 +18,8 @@ function parseArgs(argv) {
       options.port = argv[++i]
     } else if (arg === '--host') {
       options.host = true
+    } else if (arg === '--open') {
+      options.open = true
     } else if (arg === '--help' || arg === '-h') {
       options.help = true
     }
@@ -35,6 +37,7 @@ Options:
   -d, --dir <path>   Pulumi project directory to inspect (default: current directory)
   -p, --port <port>  Port to serve on (default: 3000)
   --host             Expose the server on your network
+  --open             Open the docs in your default browser once ready
   -h, --help         Show this help message
 `)
 }
@@ -58,6 +61,7 @@ const viteArgs = [
   options.port,
 ]
 if (options.host) viteArgs.push('--host')
+if (options.open) viteArgs.push('--open')
 
 if (!hasProductionBuild) {
   console.log(
