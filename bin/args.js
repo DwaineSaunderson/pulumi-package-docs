@@ -14,7 +14,7 @@ export function parseArgs(argv) {
       options.dir = resolve(argv[++i])
     } else if (arg === '--port' || arg === '-p') {
       options.port = argv[++i]
-    } else if (arg === '--stdio' || arg === '--mcp') {
+    } else if (arg === '--stdio') {
       options.stdio = true
     } else if (arg === '--host') {
       options.host = true
@@ -38,7 +38,7 @@ Options:
   -p, --port <port>  Port to serve on (default: 3000)
   --host             Expose the server on your network
   --open             Open the docs in your default browser once ready
-  --stdio, --mcp     Run as an MCP server over stdio instead of serving the docs
+  --stdio            Run as an MCP server over stdio instead of serving the docs
                      site (for MCP clients that spawn a server process). The
                      same tools are served over HTTP at /mcp when serving the site.
   -h, --help         Show this help message

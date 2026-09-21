@@ -17,7 +17,7 @@ pulumi-package-docs [options]
   -p, --port <port>  Port to serve on (default: 3000)
   --host             Expose the server on your network
   --open             Open the docs in your default browser once ready
-  --stdio, --mcp     Run as an MCP server over stdio instead of serving the docs site
+  --stdio            Run as an MCP server over stdio instead of serving the docs site
   -h, --help         Show this help message
 ```
 
