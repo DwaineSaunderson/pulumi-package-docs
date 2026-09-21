@@ -28,7 +28,8 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
-    "build": "vite build",
+    "build": "vite build && npm run build:mcp",
+    "build:mcp": "vite build --config vite.mcp.config.ts",
     "preview": "vite preview",
     "start": "node bin/cli.js",
     "compile:bun": "node bin/generate-embedded-assets.js && bun build ./bin/cli-bun.js --compile --outfile pulumi-package-docs",

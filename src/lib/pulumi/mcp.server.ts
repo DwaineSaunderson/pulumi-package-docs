@@ -2,8 +2,6 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 
-import { getProvider, listProviders } from '@/lib/pulumi/api'
-import type { ProviderDetail } from '@/lib/pulumi/api'
 import { resolveDescription } from '@/lib/pulumi/description'
 import { getTargetDir, loadPulumiProject } from '@/lib/pulumi/discovery.server'
 import {
@@ -14,6 +12,11 @@ import {
 } from '@/lib/pulumi/examples'
 import { formatType } from '@/lib/pulumi/format'
 import { formatPropertyName } from '@/lib/pulumi/naming'
+import {
+  loadProjectSummary,
+  loadProviderDetail,
+} from '@/lib/pulumi/providers.server'
+import type { ProviderDetail } from '@/lib/pulumi/providers.server'
 import { resolveProviderSchema } from '@/lib/pulumi/schema.server'
 import { tokenDisplayName } from '@/lib/pulumi/token'
 import type {
@@ -30,7 +33,7 @@ function textResult(data: unknown): CallToolResult {
 async function requireProvider(
   providerName: string,
 ): Promise<ProviderDetail & { schema: NonNullable<ProviderDetail['schema']> }> {
-  const detail = await getProvider({ data: providerName })
+  const detail = await loadProviderDetail(providerName)
   if (!detail) {
     throw new Error(
       `No local provider named "${providerName}" was found. Call list_providers to see the providers declared in this project's Pulumi.yaml.`,
@@ -100,8 +103,10 @@ function memberDetail(
 }
 
 /**
- * Builds a fresh MCP server with the local-provider-docs tools registered. Called once
- * per HTTP request (see `src/routes/mcp.ts`) so concurrent requests never share state.
+ * Builds a fresh MCP server with the local-provider-docs tools registered. Transport
+ * agnostic: `src/routes/mcp.ts` calls it once per HTTP request (so concurrent requests
+ * never share state), and `src/lib/pulumi/stdio.server.ts` calls it once for the
+ * lifetime of a stdio process.
  */
 export function createMcpServer(): McpServer {
   const server = new McpServer({
@@ -116,7 +121,7 @@ export function createMcpServer(): McpServer {
       description:
         "List the local/parameterized Pulumi providers declared in this project's Pulumi.yaml (added with `pulumi package add`), with their source, version, and resource/function counts.",
     },
-    async () => textResult(await listProviders()),
+    async () => textResult(await loadProjectSummary()),
   )
 
   server.registerTool(

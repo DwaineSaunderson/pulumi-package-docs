@@ -17,6 +17,7 @@ pulumi-package-docs [options]
   -p, --port <port>  Port to serve on (default: 3000)
   --host             Expose the server on your network
   --open             Open the docs in your default browser once ready
+  --stdio, --mcp     Run as an MCP server over stdio instead of serving the docs site
   -h, --help         Show this help message
 ```
 
@@ -39,7 +40,38 @@ brew install pierskarsenbarg/tap/pulumi-package-docs
 
 ## MCP
 
-The server also exposes an [MCP](https://modelcontextprotocol.io) endpoint at `/mcp` (Streamable HTTP), so a coding agent can look up the same local provider docs without browsing the site. Point an MCP client at `http://localhost:3000/mcp` (e.g. in Claude Code, `claude mcp add --transport http pulumi-package-docs http://localhost:3000/mcp`). Tools:
+The same local provider docs are available to coding agents over [MCP](https://modelcontextprotocol.io), via either transport.
+
+**Streamable HTTP**, while the docs site is running: the server exposes an MCP endpoint at `/mcp`, so point an MCP client at `http://localhost:3000/mcp` (e.g. in Claude Code, `claude mcp add --transport http pulumi-package-docs http://localhost:3000/mcp`).
+
+**stdio**, for clients that spawn a server process instead of connecting to a URL: run with `--stdio` and no docs site is started at all — the process speaks MCP on stdin/stdout and exits with the client.
+
+```bash
+claude mcp add pulumi-package-docs -- npx -y pulumi-package-docs --stdio --dir /path/to/pulumi/project
+```
+
+Or, in an MCP client's JSON config:
+
+```json
+{
+  "mcpServers": {
+    "pulumi-package-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "pulumi-package-docs",
+        "--stdio",
+        "--dir",
+        "/path/to/pulumi/project"
+      ]
+    }
+  }
+}
+```
+
+`--dir` defaults to the process's working directory, so it can be omitted when the client launches the server from the Pulumi project itself. The standalone binary works the same way — use its path in place of `npx -y pulumi-package-docs`.
+
+Both transports serve the same tools:
 
 - `list_providers` — the local providers declared in `Pulumi.yaml`, with resource/function counts and schema load status.
 - `list_resources` / `list_functions` — a provider's resource or function tokens, with a one-line summary and deprecation status for each.
@@ -73,7 +105,7 @@ Build the production app with:
 npm run build
 ```
 
-`bin/cli.js` is the `npx` entry point: it serves the production build with `vite preview` if one exists (`npm run build` first), otherwise falls back to `vite dev`. `bin/cli-bun.js` is a separate entry point used to build the standalone Bun executables (see above); it serves the built SSR handler directly with `Bun.serve` instead of shelling out to Vite. Build one locally with:
+`bin/cli.js` is the `npx` entry point: it serves the production build with `vite preview` if one exists (`npm run build` first), otherwise falls back to `vite dev`. With `--stdio` it skips Vite entirely and runs `dist/mcp/stdio.js` in-process, which `npm run build` produces from `vite.mcp.config.ts` (so `--stdio` needs a build — there's no dev-server fallback for it). `bin/cli-bun.js` is a separate entry point used to build the standalone Bun executables (see above); it serves the built SSR handler directly with `Bun.serve` instead of shelling out to Vite. Build one locally with:
 
 ```bash
 npm run build
