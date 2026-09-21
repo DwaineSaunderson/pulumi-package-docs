@@ -31,7 +31,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "node bin/cli.js",
-    "prepublishOnly": "npm run build",
+    "compile:bun": "node bin/generate-embedded-assets.js && bun build ./bin/cli-bun.js --compile --outfile pulumi-package-docs",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "oxlint",
