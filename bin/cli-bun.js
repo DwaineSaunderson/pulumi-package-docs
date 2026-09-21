@@ -20,10 +20,14 @@ function openBrowser(url) {
       : process.platform === 'win32'
         ? ['cmd', '/c', 'start', '', url]
         : ['xdg-open', url]
-  spawn(command[0], command.slice(1), {
+  const child = spawn(command[0], command.slice(1), {
     stdio: 'ignore',
     detached: true,
-  }).unref()
+  })
+  child.on('error', (err) => {
+    console.error(`Could not open browser: ${err.message}`)
+  })
+  child.unref()
 }
 
 console.log(`Serving provider docs for: ${options.dir}`)
