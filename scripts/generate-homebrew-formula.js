@@ -44,6 +44,8 @@ const formula = `class PulumiPackageDocs < Formula
   version "${version}"
   license "MIT"
 
+  depends_on "pulumi"
+
   on_macos do
     on_arm do
       url "${releaseUrl}/pulumi-package-docs-darwin-arm64"
