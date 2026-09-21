@@ -28,12 +28,12 @@ jobs:
 
       - run: npm run build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-build
           path: dist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: package-json
           path: package.json
@@ -50,12 +50,12 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-build
           path: dist
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: package-json
 
@@ -87,7 +87,7 @@ jobs:
 
       - run: npm ci
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-build
           path: dist
@@ -98,7 +98,7 @@ jobs:
 
       - run: bun build ./bin/cli-bun.js --compile --target=${{ matrix.target }} --outfile ${{ matrix.name }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: binary-${{ matrix.target }}
           path: ${{ matrix.name }}
@@ -109,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: binary-*
           path: dist-bin
@@ -119,3 +119,55 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" --generate-notes dist-bin/*
+
+  homebrew:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: binary-bun-{darwin-arm64,darwin-x64,linux-arm64,linux-x64}
+          path: dist-bin
+          merge-multiple: true
+
+      - name: Compute checksums
+        id: checksums
+        run: |
+          {
+            echo "darwin-arm64=$(sha256sum dist-bin/pulumi-package-docs-darwin-arm64 | cut -d' ' -f1)"
+            echo "darwin-x64=$(sha256sum dist-bin/pulumi-package-docs-darwin-x64 | cut -d' ' -f1)"
+            echo "linux-arm64=$(sha256sum dist-bin/pulumi-package-docs-linux-arm64 | cut -d' ' -f1)"
+            echo "linux-x64=$(sha256sum dist-bin/pulumi-package-docs-linux-x64 | cut -d' ' -f1)"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        with:
+          repository: pierskarsenbarg/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Generate formula
+        run: |
+          node scripts/generate-homebrew-formula.js \
+            --version "${GITHUB_REF_NAME#v}" \
+            --sha-darwin-arm64 "${{ steps.checksums.outputs.darwin-arm64 }}" \
+            --sha-darwin-x64 "${{ steps.checksums.outputs.darwin-x64 }}" \
+            --sha-linux-arm64 "${{ steps.checksums.outputs.linux-arm64 }}" \
+            --sha-linux-x64 "${{ steps.checksums.outputs.linux-x64 }}" \
+            --out homebrew-tap/Formula/pulumi-package-docs.rb
+
+      - name: Push formula to homebrew-tap
+        working-directory: homebrew-tap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/pulumi-package-docs.rb
+          git commit -m "pulumi-package-docs $GITHUB_REF_NAME"
+          git push

@@ -31,6 +31,12 @@ chmod +x pulumi-package-docs-darwin-arm64
 ./pulumi-package-docs-darwin-arm64 --dir /path/to/pulumi/project
 ```
 
+On macOS or Linux, it's also available via Homebrew:
+
+```bash
+brew install pierskarsenbarg/tap/pulumi-package-docs
+```
+
 ## MCP
 
 The server also exposes an [MCP](https://modelcontextprotocol.io) endpoint at `/mcp` (Streamable HTTP), so a coding agent can look up the same local provider docs without browsing the site. Point an MCP client at `http://localhost:3000/mcp` (e.g. in Claude Code, `claude mcp add --transport http pulumi-package-docs http://localhost:3000/mcp`). Tools:
