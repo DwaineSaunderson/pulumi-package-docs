@@ -10,7 +10,36 @@ permissions:
   id-token: write
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Set package.json version from tag
+        run: npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
+
+      - run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-build
+          path: dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-json
+          path: package.json
+
   publish:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -21,15 +50,72 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
-      - run: npm ci
-      - run: npm test
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-build
+          path: dist
 
-      - name: Set package.json version from tag
-        run: npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: package-json
 
       - run: npm publish
+
+  compile:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: bun-darwin-arm64
+            name: pulumi-package-docs-darwin-arm64
+          - target: bun-darwin-x64
+            name: pulumi-package-docs-darwin-x64
+          - target: bun-linux-x64
+            name: pulumi-package-docs-linux-x64
+          - target: bun-linux-arm64
+            name: pulumi-package-docs-linux-arm64
+          - target: bun-windows-x64
+            name: pulumi-package-docs-windows-x64.exe
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-build
+          path: dist
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: node bin/generate-embedded-assets.js
+
+      - run: bun build ./bin/cli-bun.js --compile --target=${{ matrix.target }} --outfile ${{ matrix.name }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.target }}
+          path: ${{ matrix.name }}
+
+  release:
+    needs: [publish, compile]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: binary-*
+          path: dist-bin
+          merge-multiple: true
 
       - name: Create GitHub release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes dist-bin/*

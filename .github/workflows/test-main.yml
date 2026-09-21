@@ -18,3 +18,17 @@ jobs:
 
       - run: npm ci
       - run: npm test
+      - run: npm run build
+
+      - uses: oven-sh/setup-bun@v2
+      - run: npm run compile:bun
+
+      - name: Smoke test compiled binary
+        run: |
+          ./pulumi-package-docs --port 3999 &
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:3999/ > /dev/null && break
+            sleep 0.5
+          done
+          curl -sf http://localhost:3999/ > /dev/null
+          kill %1
