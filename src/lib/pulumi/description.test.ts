@@ -45,6 +45,20 @@ describe('resolveDescription', () => {
     expect(resolveDescription(text, 'python')).not.toContain('</span>')
   })
 
+  it('strips the <break> markers pulumi.com uses inside fenced blocks', () => {
+    const text = '```sh<break>\n$ pulumi up\n<break>```'
+    expect(resolveDescription(text)).toBe('```sh\n$ pulumi up\n```')
+  })
+
+  it('strips the code chooser comments', () => {
+    const text =
+      '## Example Usage\n\n<!--Start PulumiCodeChooser -->\n\nbody\n\n<!--End PulumiCodeChooser -->'
+    const resolved = resolveDescription(text)
+    expect(resolved).not.toContain('PulumiCodeChooser')
+    expect(resolved).toContain('## Example Usage')
+    expect(resolved).toContain('body')
+  })
+
   it('resolves multiple spans in the same description', () => {
     const text =
       '<span pulumi-lang-nodejs="a" pulumi-lang-python="A">a</span> and ' +

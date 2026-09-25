@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { resolveDescription } from '@/lib/pulumi/description'
 import {
   extractExamples,
   pickExample,
@@ -93,5 +94,39 @@ describe('pickExample', () => {
 
   it('returns undefined for an empty example list', () => {
     expect(pickExample([], 'python')).toBeUndefined()
+  })
+})
+
+describe('extractExamples after resolveDescription', () => {
+  // The schema writes these fences as ```sh<break>, which the fence pattern
+  // can't match — so the block used to leak into the prose as raw markdown.
+  it('finds a fenced block whose language tag carried a <break>', () => {
+    const raw =
+      'Import it:\n\n```sh<break>\n$ pulumi import foo bar\n<break>```'
+
+    expect(extractExamples(raw)).toHaveLength(0)
+
+    const examples = extractExamples(resolveDescription(raw))
+    expect(examples).toHaveLength(1)
+    expect(examples[0].language).toBe('sh')
+    expect(examples[0].code).toBe('$ pulumi import foo bar')
+    expect(stripExamples(resolveDescription(raw))).toBe('Import it:')
+  })
+})
+
+describe('stripExamples tidying', () => {
+  it('drops a fence left unpaired by the schema', () => {
+    // pulumi-random's RandomPassword description ships an odd number of them.
+    const text = 'Intro\n\n```ts\ncode()\n```\n\nOutro\n\n```'
+    expect(stripExamples(text)).toBe('Intro\n\nOutro')
+  })
+
+  it('collapses the blank run a removed block leaves behind', () => {
+    const text = 'Before\n\n```ts\ncode()\n```\n\nAfter'
+    expect(stripExamples(text)).toBe('Before\n\nAfter')
+  })
+
+  it('returns undefined when only fences remain', () => {
+    expect(stripExamples('```ts\ncode()\n```')).toBeUndefined()
   })
 })

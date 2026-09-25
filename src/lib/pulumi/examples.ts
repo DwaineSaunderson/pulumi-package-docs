@@ -19,10 +19,22 @@ export function extractExamples(text?: string): SchemaExample[] {
   }))
 }
 
+/**
+ * A fence left without its partner — some schema descriptions ship an odd
+ * number of them — renders as an empty code block once the pairs around it
+ * have been taken out, so drop any that survive.
+ */
+const STRAY_FENCE_RE = /^[ \t]*```[a-zA-Z0-9+#-]*[ \t]*$/gm
+
 /** The description text with any fenced code examples removed. */
 export function stripExamples(text?: string): string | undefined {
   if (!text) return text
-  const stripped = text.replace(CODE_FENCE_RE, '').trim()
+  const stripped = text
+    .replace(CODE_FENCE_RE, '')
+    .replace(STRAY_FENCE_RE, '')
+    // Removing a block mid-prose leaves a run of blank lines behind it.
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
   return stripped || undefined
 }
 
