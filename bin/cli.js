@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawn } from 'node:child_process'
 import { parseArgs, printHelp } from './args.js'
+import { buildStaticSite } from './static.js'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const require = createRequire(import.meta.url)
@@ -14,6 +15,12 @@ const options = parseArgs(process.argv.slice(2))
 if (options.help) {
   printHelp()
   process.exit(0)
+}
+
+if (options.unknownCommand) {
+  console.error(`Unknown command: ${options.unknownCommand}\n`)
+  printHelp()
+  process.exit(1)
 }
 
 process.env.PULUMI_LOCAL_DOCS_DIR = options.dir
@@ -34,6 +41,23 @@ if (options.stdio) {
 } else {
   const vitePkgJson = require.resolve('vite/package.json')
   const viteBin = join(dirname(vitePkgJson), 'bin', 'vite.js')
+
+  if (options.command === 'static') {
+    try {
+      await buildStaticSite({
+        packageRoot,
+        viteBin,
+        dir: options.dir,
+        out: options.out,
+        base: options.base,
+        force: options.force,
+      })
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : err)
+      process.exit(1)
+    }
+    process.exit(0)
+  }
 
   const hasProductionBuild = existsSync(
     join(packageRoot, 'dist', 'server', 'server.js'),
