@@ -1,3 +1,4 @@
+import { Markdown } from '@/components/Markdown'
 import { formatType } from '@/lib/pulumi/format'
 import { formatPropertyName } from '@/lib/pulumi/naming'
 import { resolveDescription } from '@/lib/pulumi/description'
@@ -18,32 +19,38 @@ export function PropertyTable({
   const requiredSet = new Set(required ?? [])
 
   return (
-    <table className="props-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        {names.map((name) => {
-          const prop = properties![name]
-          return (
-            <tr key={name}>
-              <td>
-                <code>{formatPropertyName(name, runtime)}</code>
-              </td>
-              <td>
-                <code>{formatType(prop)}</code>
-              </td>
-              <td>{requiredSet.has(name) ? 'yes' : 'no'}</td>
-              <td>{resolveDescription(prop.description, runtime) ?? ''}</td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
+    <div className="props-table-scroll">
+      <table className="props-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {names.map((name) => {
+            const prop = properties![name]
+            return (
+              <tr key={name}>
+                <td>
+                  <code>{formatPropertyName(name, runtime)}</code>
+                </td>
+                <td>
+                  <code>{formatType(prop)}</code>
+                </td>
+                <td>{requiredSet.has(name) ? 'yes' : 'no'}</td>
+                <td>
+                  <Markdown inline>
+                    {resolveDescription(prop.description, runtime)}
+                  </Markdown>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
   )
 }

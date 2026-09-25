@@ -1,5 +1,6 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
+import { Markdown } from '@/components/Markdown'
 import { getProvider } from '@/lib/pulumi/api'
 import { resolveDescription } from '@/lib/pulumi/description'
 import { summarizeDescription } from '@/lib/pulumi/examples'
@@ -47,7 +48,11 @@ function MemberListItem({
         <code>{tokenDisplayName(token)}</code>
       </Link>
       {deprecated && <span className="badge badge-warning">Deprecated</span>}
-      {summary && <p className="doc-summary">{summary}</p>}
+      {summary && (
+        <div className="doc-summary">
+          <Markdown inline>{summary}</Markdown>
+        </div>
+      )}
     </li>
   )
 }
@@ -84,7 +89,9 @@ function ProviderDetail() {
             </p>
           )}
           {schema.description && (
-            <p>{resolveDescription(schema.description, runtime)}</p>
+            <Markdown>
+              {resolveDescription(schema.description, runtime)}
+            </Markdown>
           )}
 
           <h2>Resources</h2>

@@ -596,3 +596,83 @@ main {
 .props-table code {
   font-size: 0.85em;
 }
+
+/* rendered markdown (schema descriptions) */
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.markdown li {
+  margin: 0.2rem 0;
+}
+
+.markdown blockquote {
+  margin: 0.75rem 0;
+  padding: 0.1rem 0 0.1rem 0.85rem;
+  border-left: 3px solid var(--color-accent-border);
+  color: var(--color-fg-muted);
+}
+
+.markdown pre {
+  overflow-x: auto;
+  background: var(--color-accent-bg);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.9rem;
+}
+
+/* A fenced block already has the `pre` chrome; don't double it up. */
+.markdown pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.markdown table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Inside a table cell there is no block flow to space out. */
+.markdown-inline p,
+.markdown-inline ul,
+.markdown-inline ol {
+  margin: 0;
+  display: inline;
+}
+
+/*
+ * A property table with long descriptions is wider than a phone. Let the
+ * table scroll inside its own box rather than dragging the whole page
+ * sideways with it.
+ */
+.props-table-scroll {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.props-table-scroll .props-table {
+  min-width: 34rem;
+  margin-bottom: 0;
+}
