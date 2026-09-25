@@ -1,13 +1,21 @@
 import { resolve } from 'node:path'
 
 export function parseArgs(argv) {
-  const options = { dir: process.cwd(), port: '3000', host: false, open: false }
+  const options = {
+    dir: process.cwd(),
+    port: '3000',
+    host: false,
+    open: false,
+    stdio: false,
+  }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (arg === '--dir' || arg === '-d') {
       options.dir = resolve(argv[++i])
     } else if (arg === '--port' || arg === '-p') {
       options.port = argv[++i]
+    } else if (arg === '--stdio') {
+      options.stdio = true
     } else if (arg === '--host') {
       options.host = true
     } else if (arg === '--open') {
@@ -30,6 +38,9 @@ Options:
   -p, --port <port>  Port to serve on (default: 3000)
   --host             Expose the server on your network
   --open             Open the docs in your default browser once ready
+  --stdio            Run as an MCP server over stdio instead of serving the docs
+                     site (for MCP clients that spawn a server process). The
+                     same tools are served over HTTP at /mcp when serving the site.
   -h, --help         Show this help message
 `)
 }

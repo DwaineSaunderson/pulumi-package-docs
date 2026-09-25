@@ -32,3 +32,6 @@ jobs:
           done
           curl -sf http://localhost:3999/ > /dev/null
           kill %1
+
+      - name: Smoke test stdio MCP server
+        run: npm run test:stdio

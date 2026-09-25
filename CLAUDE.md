@@ -11,7 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm install
 npm run dev          # dev server on :3000
-npm run build         # production build (dist/client + dist/server)
+npm run build         # production build (dist/client + dist/server + dist/mcp)
+npm run build:mcp      # just the stdio MCP bundle (dist/mcp/stdio.js)
 npm run preview        # serve the production build (vite preview)
 npm run start          # run via bin/cli.js, same entry point npx uses
 npm run generate-routes # regenerate src/routeTree.gen.ts after adding/renaming a route
@@ -19,6 +20,7 @@ npm run lint          # oxlint
 npm run format          # oxfmt (write) then oxlint --fix
 npm run check          # oxfmt --check (CI-style format check)
 npm test              # vitest run (single run)
+npm run test:stdio      # smoke-test the --stdio entry points (needs build + compile:bun first)
 npm run test:watch      # vitest (watch mode)
 ```
 
@@ -49,12 +51,21 @@ Each entry becomes a `LocalPackageRef` (`name`, `source`, `version`, optional `p
 
 **Server-only modules use a `.server.ts` suffix** (`discovery.server.ts`, `schema.server.ts`) and use Node builtins (`node:fs`, `node:child_process`). They're only ever imported from inside `createServerFn(...).handler()` closures in `src/lib/pulumi/api.ts`, which is what keeps them out of the client bundle — don't import them directly from route components.
 
-**`src/lib/pulumi/api.ts`** exposes two TanStack Start server functions consumed by routes:
+**`src/lib/pulumi/providers.server.ts`** holds the two plain loaders everything else reads through — `loadProjectSummary()` (project info + a name/source/version/resource+function-count summary per provider) and `loadProviderDetail(name)` (the full resolved schema for one provider). They're deliberately free of any TanStack Start runtime so they also work in the stdio MCP process, which has no HTTP server.
 
-- `listProviders` — used by `src/routes/index.tsx`, returns project info + a summary (name/source/version/resource+function counts) per provider.
-- `getProvider` — used by `src/routes/providers.$name.tsx`, returns the full resolved schema for one provider.
+**`src/lib/pulumi/api.ts`** wraps those two loaders in TanStack Start server functions for the routes:
 
-**`src/routes/mcp.ts`** exposes the same provider docs over MCP (Streamable HTTP) at `/mcp`, for coding agents. It's a plain TanStack Start file route with `server.handlers` (not a page route — no `component`), stateless: a fresh `McpServer` + `WebStandardStreamableHTTPServerTransport` per request via `createMcpServer()` in `src/lib/pulumi/mcp.server.ts`, since every tool is a read and there's nothing worth persisting across requests. Tools (`list_providers`, `list_resources`/`list_functions`, `get_resource`/`get_function`, `search_members`) are built on top of `listProviders`/`getProvider` plus the same description/example/formatting helpers the routes use, so the MCP and web views stay in sync by construction — extend both from those shared helpers rather than duplicating formatting logic in `mcp.server.ts`.
+- `listProviders` — used by `src/routes/index.tsx`.
+- `getProvider` — used by `src/routes/providers.$name.tsx`.
+
+New shared loading logic belongs in `providers.server.ts`; `api.ts` should stay a thin server-fn wrapper so the MCP server never has to import it.
+
+**MCP is served over two transports from one tool registry.** `createMcpServer()` in `src/lib/pulumi/mcp.server.ts` builds an `McpServer` with the tools (`list_providers`, `list_resources`/`list_functions`, `get_resource`/`get_function`, `search_members`) and is transport-agnostic — it must stay that way, so it imports `providers.server.ts` directly rather than the server functions in `api.ts`. The tools are built on top of those loaders plus the same description/example/formatting helpers the routes use, so the MCP and web views stay in sync by construction — extend both from those shared helpers rather than duplicating formatting logic in `mcp.server.ts`.
+
+- **Streamable HTTP** — `src/routes/mcp.ts`, a plain TanStack Start file route with `server.handlers` (not a page route — no `component`). Stateless: a fresh `McpServer` + `WebStandardStreamableHTTPServerTransport` per request, since every tool is a read and there's nothing worth persisting across requests.
+- **stdio** — `src/lib/pulumi/stdio.server.ts` exports `runStdioMcpServer()`, one long-lived server on a `StdioServerTransport`. `stdout` is the protocol channel there, so nothing on that path may write to it — banners and diagnostics go to `stderr` (see the `options.stdio` branches in `bin/cli.js` and `bin/cli-bun.js`).
+
+`vite.mcp.config.ts` is a second, separate Vite build (no `tanstackStart()` plugin, no client bundle) that bundles the stdio entry point to `dist/mcp/stdio.js` for plain Node. `npm run build` runs it after the app build; `bin/cli.js --stdio` imports that file, so stdio mode needs a production build and has no dev-server fallback. The Bun binary imports the TypeScript source directly instead, and loads the docs site and its embedded assets via dynamic `import()` so `--stdio` never pulls in the web server.
 
 **Routing** is TanStack Router's file-based routing under `src/routes`. `src/routeTree.gen.ts` is auto-generated (regenerated by `npm run generate-routes`, or automatically by `npm run dev`/`build`) — never hand-edit it. Path aliases `@/*` and `#/*` both map to `./src/*` (see `tsconfig.json` / `package.json#imports`).
 
@@ -62,4 +73,6 @@ Each entry becomes a `LocalPackageRef` (`name`, `source`, `version`, optional `p
 
 **Linting/formatting is oxlint + oxfmt, not eslint/prettier.** Config lives in `.oxlintrc.json` and `.oxfmtrc.json`. oxfmt formats JS/TS/JSX/TSX/JSON/CSS/Markdown, so it's the sole formatter (no prettier). `src/routeTree.gen.ts` is excluded from oxlint via `ignorePatterns`.
 
-**Tests are Vitest, run against plain Node — not through TanStack Start.** `vitest.config.ts` is deliberately separate from `vite.config.ts` so the `tanstackStart()` plugin (which does its own client/SSR multi-environment build) isn't in the test run. Tests live next to the code they cover as `*.test.ts` (e.g. `src/lib/pulumi/format.test.ts`, `src/lib/pulumi/discovery.server.test.ts`) and only target the pure/Node-side logic in `src/lib/pulumi`, not the routes or React components.
+**Tests are Vitest, run against plain Node — not through TanStack Start.** `vitest.config.ts` is deliberately separate from `vite.config.ts` so the `tanstackStart()` plugin (which does its own client/SSR multi-environment build) isn't in the test run. Tests live next to the code they cover as `*.test.ts` (e.g. `src/lib/pulumi/format.test.ts`, `src/lib/pulumi/discovery.server.test.ts`) and only target the pure/Node-side logic in `src/lib/pulumi`, not the routes or React components. `mcp.server.test.ts` drives `createMcpServer()` through a real MCP client over `InMemoryTransport` — that only works because the server is transport-agnostic, so it doubles as a regression test against `mcp.server.ts` picking up a TanStack Start dependency again.
+
+**The stdio entry points are covered by a CI smoke test, not by Vitest.** `scripts/smoke-test-stdio.js` spawns a command as an MCP server and drives it with a real MCP client over stdio. `npm run test:stdio` runs it against both `node bin/cli.js --stdio` and the compiled Bun binary, so it needs `npm run build` and `npm run compile:bun` to have run first; both test workflows call it after those steps. It's outside the Vitest suite because it needs those build artifacts, and it guards what unit tests can't: the `dist/mcp/stdio.js` path and export name that `bin/cli.js` depends on, the TypeScript-source path the Bun binary uses, and `--dir` plumbing. A handshake also fails fast if anything on the stdio path writes to stdout, since the client can't parse a stray banner as JSON-RPC.
