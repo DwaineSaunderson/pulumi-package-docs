@@ -25,6 +25,11 @@ if (options.unknownCommand) {
 
 process.env.PULUMI_LOCAL_DOCS_DIR = options.dir
 
+if (options.command === 'static' && options.stdio) {
+  console.error('`--stdio` is a serve option; it has no effect on `static`.')
+  process.exit(1)
+}
+
 if (options.stdio) {
   // stdout is the MCP protocol channel here, so the usual startup banner goes to
   // stderr and the server runs in-process (no vite, no HTTP server).
